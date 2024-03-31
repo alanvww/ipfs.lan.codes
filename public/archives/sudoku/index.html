@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link
+			rel="icon"
+			type="image/png"
+			href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAG9SURBVHgB7duhSgRRFIDhs7JB3GJRNInRKBMEg+Ami2WSPoBWBZ9DxKoPYNsiiEnBIAiCceOiCIoYLCM2dWDL7Eye+4f/iydd+OHcdDpXw9ffSODr8yOOD/cqs9m5+Tg6OY8Unu5uYnB2WpmtbvQj3z+INk2FUAwCYxAYg8AYBMYgMAaBMQiMQWAMAmMQGIPAGATGIDAGgTEIjEFgDAJjEBiDwBgExiAwBoExCIxBYAwCYxAYg8AYBKZ7O7iIFH6+i/qsKCLVe95eRrXZ+/Oo9fd0sixLco6gZq4sGIPAGASm2893IoXyU7+/vqzMpmd6sb61HSmUn/rw8aEyW1xajpVsLdrU3cx3I4XyxrAWpNeLVO8pbwwngyz8B2n7Pa4sGIPAGATGIDAGgTEIjEFgDAJjEBiDwBgExiAwBoExCIxBYAwCYxAYg8AYBMYgMAaBMQiMQWAMAmMQGIPAGATGIDCetI150qZGriwYg8AYBMaTtjFP2jxpa+TKgjEIjEFgDAJjEBiDwBgExiAwBoExCIxBYAwCYxAYg8AYBMYgMAaBMQiMQWAMAmMQGIPAGATGIDAGgTEIjEFgDALzBwb+acS/CSxZAAAAAElFTkSuQmCC
+            "
+		/>
+
+		<title>Sudoku!</title>
+		<style>
+			* {
+				font-family: 'Lilita One', cursive;
+			}
+
+			body {
+				margin: 0;
+				height: 100%;
+			}
+
+			header h1 {
+				margin: 0;
+				color: #333;
+				text-align: center;
+				font-size: 5em;
+			}
+
+			.sidenav {
+				height: 100%;
+				width: 0;
+				position: fixed;
+				z-index: 1;
+				top: 0;
+				left: 0;
+				background-color: #111;
+				overflow-x: hidden;
+				transition: 0.5s;
+				padding-top: 60px;
+			}
+
+			.sidenav a {
+				padding: 8px 8px 8px 32px;
+				text-decoration: none;
+				font-size: 25px;
+				color: #818181;
+				display: block;
+				transition: 0.3s;
+			}
+
+			.sidenav a:hover {
+				color: #f1f1f1;
+			}
+
+			.sidenav .closebtn {
+				position: absolute;
+				top: 0;
+				right: 25px;
+				font-size: 36px;
+				margin-left: 50px;
+			}
+
+			.buttonBox {
+				display: flex;
+				justify-content: center;
+				margin: 1%;
+			}
+
+			.button {
+				background-color: lightblue;
+				border: none;
+				color: white;
+				padding: 15px 32px;
+				text-align: center;
+				text-decoration: none;
+				display: inline-block;
+				font-size: 1.5vmax;
+				margin: 4px 2px;
+				cursor: pointer;
+				-webkit-transition-duration: 0.4s;
+				/* Safari */
+				transition-duration: 0.4s;
+			}
+
+			.button:hover {
+				box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+					0 17px 50px 0 rgba(0, 0, 0, 0.19);
+			}
+
+			footer {
+				display: relative;
+				position: relative;
+				text-align: center;
+				bottom: 0px;
+				padding: 32px 16px;
+				color: rgb(255, 255, 255);
+				background-color: lightblue;
+			}
+
+			.sudokuContainer {
+				position: relative;
+				margin-left: 50%;
+				margin-right: 50%;
+				transform: translateX(-50%);
+				width: 900px;
+				max-width: 66vw;
+				margin-top: 6vh;
+				margin-bottom: 6vh;
+			}
+
+			.sudokuCells {
+				display: flex;
+				flex-direction: row;
+				flex-flow: row wrap;
+			}
+
+			.sudokuCells > .cell {
+				position: relative;
+				width: calc((100% - 27px) / 9);
+				border: 1px solid black;
+				transition: background-color 0.1s;
+			}
+
+			.sudokuCells > .cell:before {
+				content: '';
+				display: block;
+				padding-top: 100%;
+			}
+
+			.sudokuCells > .cell:nth-child(3n):not(:nth-child(9n)) {
+				border-right: 3px solid black;
+			}
+
+			.sudokuCells > .cell:nth-child(3n + 1):not(:nth-child(9n + 1)) {
+				border-left: 3px solid black;
+			}
+
+			.sudokuCells > .cell:nth-child(n + 19):nth-child(-n + 27),
+			.sudokuCells > .cell:nth-child(n + 46):nth-child(-n + 54) {
+				border-bottom: 3px solid black;
+			}
+
+			.sudokuCells > .cell:nth-child(n + 28):nth-child(-n + 36),
+			.sudokuCells > .cell:nth-child(n + 55):nth-child(-n + 63) {
+				border-top: 3px solid black;
+			}
+
+			.sudokuCells > .cell > h1 {
+				position: absolute;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 100%;
+				text-align: center;
+				margin: 0;
+				font-size: 3vmax;
+				font-weight: 100;
+				z-index: 2;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			.sudokuCells > .cell.is-fixed {
+				background-color: #ddd;
+			}
+
+			.sudukuCells > .cell.has-mistake > h1 {
+				color: #fff;
+			}
+
+			.sudokuCells > .cell.has-mistake:after {
+				content: '';
+				position: absolute;
+				width: 50%;
+				height: 50%;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background-color: rgb(253, 75, 75);
+				border-radius: 100%;
+				z-index: 1;
+			}
+
+			.sudokuCells > .cell.active {
+				background-color: Lightblue;
+			}
+
+			.sudokuCells > .cell.active > h1 {
+				color: #fff;
+			}
+
+			.sudokuInputBoard {
+				position: relative;
+				margin-left: 50%;
+				margin-right: 50%;
+				transform: translateX(-50%);
+				width: 700px;
+				max-width: 30vw;
+			}
+
+			.inputCells {
+				display: flex;
+				flex-direction: row;
+				flex-flow: row wrap;
+			}
+
+			.inputCells > .input-cell {
+				position: relative;
+				background: Lightblue;
+				width: calc((100% - 27px) / 9);
+				transition: background-color 0.1s;
+			}
+
+			.inputCells > .input-cell:before {
+				content: '';
+				display: block;
+				padding-top: 100%;
+			}
+
+			.inputCells > .input-cell > h1 {
+				position: absolute;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 100%;
+				text-align: center;
+				margin: 0;
+				font-size: 2vmax;
+				color: #fff;
+				z-index: 2;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			.navinpage {
+				list-style-type: none;
+				margin: auto;
+				padding: 0;
+				width: 15%;
+				background-color: #ffffff;
+				position: fixed;
+				overflow: auto;
+			}
+
+			.navinpage li a {
+				display: block;
+				color: #000;
+				padding: 8px 16px;
+				text-decoration: none;
+				margin: auto;
+			}
+
+			.navinpage li a:hover {
+				background-color: lightblue;
+				color: white;
+			}
+
+			.Content {
+				margin-left: 15%;
+				margin-right: 20%;
+				padding: auto;
+				height: auto;
+				font-size: 1vmax;
+			}
+
+			.highlight {
+				border: 1px solid rgb(235, 235, 235);
+				background-color: rgb(235, 235, 235);
+			}
+
+			@media screen and (max-height: 900px) {
+				.sidenav {
+					padding-top: 15px;
+				}
+
+				.sidenav a {
+					font-size: 18px;
+				}
+
+				.buttonBox {
+					max-width: 100%;
+				}
+
+				.button {
+					max-width: 100%;
+					padding: 12px 20px;
+					margin: 4px 2px;
+				}
+
+				footer {
+					padding: 20px 5px;
+					text-align: center;
+				}
+
+				.sudokuInputBoard {
+					max-width: 100%;
+				}
+
+				.inputCells {
+					display: flex;
+					flex-direction: row;
+					flex-flow: row wrap;
+					justify-content: center;
+				}
+
+				.sudokuContainer {
+					margin-top: 4vh;
+					max-width: 100%;
+				}
+
+				.navinpage,
+				.navinpage li a {
+					display: none;
+					padding: 0;
+					margin: 0;
+					float: none;
+				}
+
+				.Content {
+					margin: 5%;
+					margin-bottom: 20%;
+					padding: auto;
+					height: auto;
+					font-size: 2vmax;
+				}
+
+				footer span {
+					margin-left: auto;
+					margin-right: auto;
+					text-align: center;
+				}
+			}
+		</style>
+		<link
+			href="https://fonts.googleapis.com/css?family=Lilita+One&display=swap"
+			rel="stylesheet"
+		/>
+	</head>
+
+	<body>
+		<header>
+			<h1>Sudoku!</h1>
+		</header>
+		<span class="buttonBox">
+			<button type="button" class="button" id="newGameButton">New Game</button>
+			<button type="button" class="button" id="showAnswerButton">
+				Show Answer
+			</button>
+			<button type="button" class="button" id="hintsButton">
+				Turn off Hints
+			</button>
+			<button type="button" class="button" id="clearButton">Clear</button>
+		</span>
+
+		<div class="sudokuInputBoard">
+			<div class="inputCells"></div>
+		</div>
+
+		<div class="sudokuContainer">
+			<div class="sudokuCells"></div>
+		</div>
+
+		<script>
+			// Class: Cell
+			// For all the single block on the broad
+			class Cell {
+				constructor(value) {
+					this.number = value;
+					this.isFixed = true;
+					this.selectedOne = false;
+				}
+
+				// Function: createElement()
+				// create div element and hold number
+				createElement() {
+					this.element = document.createElement('div');
+					this.element.classList.add('cell');
+					this.updateNumberElement();
+
+					return this.element;
+				}
+
+				// Function: createInputElement()
+				// create div element for input number
+				createInputElement() {
+					this.element = document.createElement('div');
+					this.element.classList.add('input-cell');
+					this.updateNumberElement();
+
+					return this.element;
+				}
+
+				// Function: setActive()
+				// Param: isActive
+				// Set the status of active or not
+				setActive(isActive) {
+					if (isActive) {
+						this.element.classList.add('active');
+						this.element.style.backgroundColor = 'Lightblue';
+					} else {
+						this.element.classList.remove('active');
+						this.element.style.backgroundColor = '';
+					}
+				}
+
+				// Function: selected()
+				// Change the background if selected
+				selected() {
+					this.selectedOne = true;
+					this.element.style.backgroundColor = 'Lightblue';
+				}
+
+				// Function: deselected()
+				// Change the background back to normal if deselected
+				deselected() {
+					this.selectedOne = false;
+					this.element.style.backgroundColor = '';
+				}
+
+				// Function: correct()
+				// change background if correct
+				correct() {
+					this.element.style.backgroundColor = 'Aquamarine';
+				}
+
+				// Function: reset()
+				// set the normal
+				reset() {
+					this.element.style.backgroundColor = '';
+				}
+
+				// Function: setFixed()
+				// Param: isFixed
+				// check if the cell is fixed or not, and add the class type
+				setFixed(isFixed) {
+					this.isFixed = isFixed;
+					if (isFixed) this.element.classList.add('is-fixed');
+					else this.element.classList.remove('is-fixed');
+				}
+
+				// Function: setMistake()
+				// Param: hasMistake
+				// check if the cell is correct or not, and add the class type
+				setMistake(hasMistake) {
+					if (hasMistake) this.element.classList.add('has-mistake');
+					else this.element.classList.remove('has-mistake');
+				}
+
+				// Function: setNumber()
+				// Param: number
+				// update the number
+				setNumber(number) {
+					this.number = number;
+					this.updateNumberElement();
+				}
+
+				// Function: updateNumberElement()
+				// change the numeber that the block holding
+				updateNumberElement() {
+					if (this.element)
+						this.element.innerHTML = `<h1>${
+							this.number !== null ? this.number : ''
+						}</h1>`;
+				}
+			}
+		</script>
+		<script>
+			class Cursor {
+				constructor(cellSize) {
+					this.cursorElement = document.getElementsByClassName('cursor')[0];
+					this.cellSize = cellSize;
+					this.pos = {
+						x: 0,
+						y: 0,
+					};
+				}
+
+				setPosition(x, y) {
+					this.pos = {
+						x: x,
+						y: y,
+					};
+				}
+			}
+		</script>
+		<script>
+			// Storage Variables
+			let lSstoredCells = window.localStorage.getItem('storedCells');
+			let lSstoredGame = window.localStorage.getItem('storedGame');
+			let parsingArray = undefined;
+			let ranArray = undefined;
+
+			// Class: Board
+			class Board {
+				// Constructor
+				constructor(size, blockCount) {
+					this.size = size;
+					this.blockSize = Math.floor(this.size / blockCount);
+					this.cells = [];
+					this.restore = false;
+					if (lSstoredCells == undefined && lSstoredGame == undefined) {
+						this.restore = false;
+						this.storedCells = [];
+						this.storedGame = [];
+					} else {
+						this.restore = true;
+					}
+					this.hints = true;
+					this.cellContainer =
+						document.getElementsByClassName('sudokuCells')[0];
+					this.inputContainer =
+						document.getElementsByClassName('inputCells')[0];
+				}
+
+				// Function: init()
+				// Initialize the board with a valid Sudoku solution
+				init() {
+					this.cells = [];
+
+					for (let i = 0; i < this.size; i++) {
+						this.cells[i] = [];
+						for (let j = 0; j < this.size; j++) {
+							this.cells[i][j] = new Cell(null);
+						}
+					}
+
+					this.fillDiagonalBoxes();
+					this.fillRemaining(0, 3);
+				}
+
+				// Function: fillDiagonalBoxes()
+				// Fill the diagonal 3x3 Sudoku boxes
+				fillDiagonalBoxes() {
+					for (let i = 0; i < this.size; i += 3) {
+						this.fillBox(i, i);
+					}
+				}
+
+				// Function: fillBox()
+				// Fill a 3x3 box with numbers
+				fillBox(row, col) {
+					let num;
+					for (let i = 0; i < 3; i++) {
+						for (let j = 0; j < 3; j++) {
+							do {
+								num = this.randomNumber();
+							} while (!this.unusedInBox(row, col, num));
+
+							this.cells[row + i][col + j].setNumber(num);
+						}
+					}
+				}
+
+				// Function: unusedInBox()
+				// Check if a number is not already used in a 3x3 box
+				unusedInBox(rowStart, colStart, num) {
+					for (let i = 0; i < 3; i++) {
+						for (let j = 0; j < 3; j++) {
+							if (this.cells[rowStart + i][colStart + j].number === num) {
+								return false;
+							}
+						}
+					}
+					return true;
+				}
+
+				// Function: randomNumber()
+				// Generate a random number between 1 and 9
+				randomNumber() {
+					return Math.floor(Math.random() * 9 + 1);
+				}
+
+				// Function: fillRemaining()
+				// Fill remaining cells using backtracking
+				fillRemaining(i, j) {
+					if (j >= this.size && i < this.size - 1) {
+						i = i + 1;
+						j = 0;
+					}
+					if (i >= this.size && j >= this.size) {
+						return true;
+					}
+					if (i < 3) {
+						if (j < 3) {
+							j = 3;
+						}
+					} else if (i < this.size - 3) {
+						if (j === Math.floor(i / 3) * 3) {
+							j = j + 3;
+						}
+					} else {
+						if (j === this.size - 3) {
+							i = i + 1;
+							j = 0;
+							if (i >= this.size) {
+								return true;
+							}
+						}
+					}
+
+					for (let num = 1; num <= this.size; num++) {
+						if (this.checkIfSafe(i, j, num)) {
+							this.cells[i][j].setNumber(num);
+							if (this.fillRemaining(i, j + 1)) {
+								return true;
+							}
+							this.cells[i][j].setNumber(null); // Backtrack
+						}
+					}
+					return false;
+				}
+
+				// Function: checkIfSafe()
+				// Check if a number can be placed at a given cell
+				checkIfSafe(i, j, num) {
+					return (
+						this.unusedInRow(i, num) &&
+						this.unusedInCol(j, num) &&
+						this.unusedInBox(i - (i % 3), j - (j % 3), num)
+					);
+				}
+
+				// Function: unusedInRow()
+				// Check if a number is not already used in a row
+				unusedInRow(i, num) {
+					for (let j = 0; j < this.size; j++) {
+						if (this.cells[i][j].number === num) {
+							return false;
+						}
+					}
+					return true;
+				}
+
+				// Function: unusedInCol()
+				// Check if a number is not already used in a column
+				unusedInCol(j, num) {
+					for (let i = 0; i < this.size; i++) {
+						if (this.cells[i][j].number === num) {
+							return false;
+						}
+					}
+					return true;
+				}
+
+				// Function: gameRestore()
+				// Restore the game from the Localstorage
+				// Reloading the cells array by the parsing arra
+				gameRestore() {
+					parsingArray = JSON.parse(lSstoredCells);
+					for (let x = 0; x < 9; x++) {
+						for (let y = 0; y < 9; y++) {
+							this.cells[x][y].number = parsingArray[x][y].number;
+							this.cells[x][y].isFixed = parsingArray[x][y].isFixed;
+							this.cells[x][y].selectedOne = parsingArray[x][y].selectedOne;
+						}
+					}
+				}
+
+				// Function: clearbraodStorage()
+				// Clean all the localStorage
+				clearbroadStorage() {
+					window.localStorage.clear();
+					this.restore = false;
+					parsingArray = undefined;
+					ranArray = undefined;
+				}
+
+				// Function: checkValidity()
+				// Check the answer (use for when user input value) by checkCellValidity()
+				checkValidity() {
+					for (let x = 0; x < 9; x++) {
+						for (let y = 0; y < 9; y++) {
+							this.cells[x][y].setMistake(
+								!this.cells[x][y].isFixed && !this.checkCellValidity(x, y)
+							);
+						}
+					}
+				}
+
+				// Function: checkAnswer()
+				// Checking all answers are correct or not by checkCellValidity()
+				checkAnswer() {
+					let allCorrect = false;
+					for (let x = 0; x < 9; x++) {
+						for (let y = 0; y < 9; y++) {
+							if (this.checkCellValidity(x, y)) {
+								allCorrect = false;
+							} else {
+								allCorrect = true;
+							}
+						}
+					}
+					return allCorrect;
+				}
+
+				// Function: checkCellValidity()
+				// Param: cellX, cellY
+				// Checking the single cell's answer is valid or not by match with the original cells array
+				checkCellValidity(cellX, cellY) {
+					const cellValue = this.cells[cellX][cellY].number;
+
+					if (cellValue === null) {
+						return true;
+					}
+
+					for (let x = 0; x < 9; x++) {
+						// Check same row
+						if (x === cellX) {
+							continue;
+						}
+						if (this.cells[x][cellY].number === cellValue) {
+							return false;
+						}
+					}
+
+					for (let y = 0; y < 9; y++) {
+						// Check same column
+						if (y === cellY) {
+							continue;
+						}
+						if (this.cells[cellX][y].number === cellValue) {
+							return false;
+						}
+					}
+
+					const blockX = Math.floor(cellX / 3);
+					const blockY = Math.floor(cellY / 3);
+					for (let innerX = 0; innerX < 3; innerX++) {
+						for (let innerY = 0; innerY < 3; innerY++) {
+							const x = blockX * 3 + innerX;
+							const y = blockY * 3 + innerY;
+							if (x === cellX && y === cellY) {
+								continue;
+							}
+
+							if (this.cells[x][y].number === cellValue) {
+								return false;
+							}
+						}
+					}
+
+					return true;
+				}
+
+				// Function: showAnswer()
+				// Set all the cells to show the cells array numbers
+				showAnswer() {
+					for (let x = 0; x < 9; x++) {
+						for (let y = 0; y < 9; y++) {
+							if (
+								this.cells[x][y].number == null ||
+								!this.checkCellValidity(x, y)
+							) {
+								this.cells[x][y].setNumber(this.storedCells[x][y].number);
+								this.cells[x][y].correct();
+							}
+						}
+					}
+					this.checkValidity();
+				}
+
+				// Function: restvBoard()
+				// Set the game board to the original game
+				resetBoard() {
+					for (let x = 0; x < 9; x++) {
+						for (let y = 0; y < 9; y++) {
+							this.cells[x][y].setNumber(this.storedGame[x][y].number);
+							this.cells[x][y].reset();
+						}
+					}
+					this.checkValidity();
+				}
+
+				// Function: clearCells()
+				// Clear the cells from the block, to create the game board
+				clearCells() {
+					ranArray = JSON.parse(window.localStorage.getItem('ranArray'));
+					if (ranArray == null) {
+						ranArray = [];
+						for (let i = 0; i < 0.8 * this.size ** 2; i++) {
+							let ranX = ranInt(0, this.size);
+							let ranY = ranInt(0, this.size);
+							let ranObj = {
+								ranX: ranX,
+								ranY: ranY,
+							};
+							ranArray.push(ranObj);
+							this.clearCell(ranArray[i].ranX, ranArray[i].ranY);
+						}
+						window.localStorage.setItem('ranArray', JSON.stringify(ranArray));
+					} else {
+						for (let i = 0; i < 0.8 * this.size ** 2; i++) {
+							this.clearCell(ranArray[i].ranX, ranArray[i].ranY);
+						}
+					}
+				}
+
+				// Function: clearCell()
+				// Param: x,y
+				// Clear the cell in x, y position (in the array)
+				clearCell(x, y) {
+					this.cells[x][y].setNumber(null);
+					this.cells[x][y].setFixed(false);
+					this.cells[x][y].setMistake(false);
+				}
+
+				// Function: storingCells()
+				// Storing the full cells array to local storage
+				storingCells() {
+					this.storedCells = JSON.parse(JSON.stringify(this.cells));
+					if (parsingArray == null) {
+						window.localStorage.setItem(
+							'storedCells',
+							JSON.stringify(this.storedCells)
+						);
+					} else {
+						parsingArray = JSON.parse(lSstoredCells);
+						for (let x = 0; x < 9; x++) {
+							for (let y = 0; y < 9; y++) {
+								this.storedCells[x][y].number = parsingArray[x][y].number;
+								this.storedCells[x][y].isFixed = parsingArray[x][y].isFixed;
+								this.storedCells[x][y].selectedOne =
+									parsingArray[x][y].selectedOne;
+							}
+						}
+					}
+				}
+
+				// Function: storingGame()
+				// Storing the game cells array to local storage
+				storingGame() {
+					this.storedGame = JSON.parse(JSON.stringify(this.cells));
+				}
+
+				// Function: createCellElements()
+				// Create html element in the page
+				createCellElements() {
+					for (let y = 0; y < this.size; y++) {
+						for (let x = 0; x < this.size; x++) {
+							this.cellContainer.appendChild(this.cells[x][y].createElement());
+							this.cells[x][y].setFixed(true);
+						}
+					}
+
+					for (let num = 1; num < 10; num++) {
+						let input = new Cell(num);
+						this.inputContainer.appendChild(input.createInputElement());
+					}
+				}
+
+				// Function: enterNumber()
+				// Param: x, y, number
+				// Set the number to the single cell
+				enterNumber(x, y, number) {
+					if (!this.cells[x][y].isFixed) {
+						this.cells[x][y].setNumber(number);
+						this.checkValidity();
+					}
+				}
+
+				// Function: getCellValue()
+				// Param: cell
+				// get the number of the cell
+				getCellValue(cell) {
+					return this.cells[cell.x][cell.y].number;
+				}
+
+				// Function: shuffle()
+				// shuffle the array by calling shuffleStep()
+				shuffle() {
+					const shuffleAmount = ranInt(10, 35);
+
+					for (let i = 0; i < shuffleAmount; i++) {
+						this.shuffleStep(ranInt(0, 3));
+					}
+				}
+
+				// Function: shuffleStep()
+				// Param: shuffleType
+				// doing 4 types of shuffling for the cell array
+				shuffleStep(shuffleType) {
+					const a = ranInt(0, 8);
+					const b =
+						((a - Math.floor(a / 3) * 3 + ranInt(1, 2)) % 3) +
+						Math.floor(a / 3) * 3;
+
+					const c = Math.floor(a / 3) * 3;
+					const d = (c + ranInt(1, 2) * 3) % 9;
+
+					switch (shuffleType) {
+						case 0:
+							this.shuffleRow(a, b);
+							break;
+						case 1:
+							this.shuffleCol(a, b);
+							break;
+						case 2:
+							this.shuffleRow(c, d);
+							this.shuffleRow(c + 1, d + 1);
+							this.shuffleRow(c + 2, d + 2);
+							break;
+						case 3:
+							this.shuffleCol(c, d);
+							this.shuffleCol(c + 1, d + 1);
+							this.shuffleCol(c + 2, d + 2);
+							break;
+						default:
+							break;
+					}
+				}
+
+				// Function: shuffleRow()
+				// Param: row1, row2
+				// swap the rows
+				shuffleRow(row1, row2) {
+					for (let x = 0; x < 9; x++) {
+						[this.cells[x][row1], this.cells[x][row2]] = [
+							this.cells[x][row2],
+							this.cells[x][row1],
+						];
+					}
+				}
+
+				// Function: shuffleCol()
+				// Param: col1, col2
+				// swap the cols
+				shuffleCol(col1, col2) {
+					[this.cells[col1], this.cells[col2]] = [
+						this.cells[col2],
+						this.cells[col1],
+					];
+				}
+
+				// Function: updateCells
+				// Param: activeCell
+				// Set the cells to be activated
+				updateCells(activeCell) {
+					const activeValue = this.getCellValue(activeCell);
+
+					for (let x = 0; x < this.size; x++) {
+						for (let y = 0; y < this.size; y++) {
+							if (this.hints) {
+								const isActive =
+									activeValue !== null &&
+									this.cells[x][y].number === activeValue;
+								this.cells[x][y].setActive(isActive);
+							} else {
+								this.cells[x][y].setActive(this.hints);
+							}
+							this.cells[x][y].deselected();
+						}
+					}
+					this.cells[activeCell.x][activeCell.y].selected();
+				}
+
+				// Function: inputValue()
+				// Param: actvieCell, inputValue
+				// Change the cell's value
+				inputValue(activeCell, inputValue) {
+					if (!this.cells[activeCell.x][activeCell.y].isFixed) {
+						this.cells[activeCell.x][activeCell.y].setNumber(inputValue);
+					}
+					this.checkValidity();
+				}
+
+				// Function: hintSwitch()
+				// Switch the boolean hints
+				hintSwitch() {
+					if (this.hints) {
+						this.hints = false;
+					} else {
+						this.hints = true;
+					}
+				}
+			}
+
+			// Function: ranInt()
+			// Param: min, max
+			// Getting random Int
+			function ranInt(min, max) {
+				return Math.floor(Math.random() * (max - min) + min);
+			}
+
+			// Function: clearStorage()
+			// Clean all the localStorage
+			function clearStorage() {
+				window.localStorage.clear();
+				parsingArray = undefined;
+				ranArray = undefined;
+			}
+		</script>
+		<script>
+			// Class: Sudoku
+			class Sudoku {
+				constructor() {
+					this.container =
+						document.getElementsByClassName('sudokuContainer')[0];
+					this.cellContainer =
+						document.getElementsByClassName('sudokuCells')[0];
+					this.sudokuInputBoard =
+						document.getElementsByClassName('sudokuInputBoard')[0];
+					this.cursor = new Cursor(this.cellSize);
+					this.board = new Board(9, 3);
+					this.cellSize = (window.innerWidth - 27) / 9;
+				}
+
+				// Function: init()
+				// Setting up the game if the restore is false. If true, reloading the game
+				init() {
+					if (this.board.restore == false) {
+						this.board.init();
+						this.board.shuffle();
+						this.board.storingCells();
+						this.board.createCellElements();
+						this.board.clearCells();
+						this.board.storingGame();
+						this.windowResizeEvent();
+						this.addListeners();
+						this.setActiveCell({
+							x: 0,
+							y: 0,
+						});
+					} else {
+						this.gameRestore();
+					}
+				}
+
+				// Function: gameRestore()
+				// Restoring the game
+				gameRestore() {
+					this.board.init();
+					this.board.gameRestore();
+					this.board.storingCells();
+					this.board.createCellElements();
+					this.board.clearCells();
+					this.board.storingGame();
+					this.windowResizeEvent();
+					this.addListeners();
+					this.setActiveCell({
+						x: 0,
+						y: 0,
+					});
+				}
+
+				// Function: addListeners()
+				// Set eventhandlers for all cells
+				// Set the keybroad event
+				// Set the double click event
+				// set the windows resize event
+				addListeners() {
+					this.cellContainer.addEventListener('click', (e) => {
+						this.setActiveCell(this.getPosition(e.pageX, e.pageY));
+					});
+
+					window.addEventListener('keydown', (e) => {
+						const activeCell = this.cursor.pos;
+						if (!isNaN(parseInt(e.key))) {
+							const number = parseInt(e.key);
+							if (number > 0) {
+								this.board.enterNumber(activeCell.x, activeCell.y, number);
+							}
+						} else if (e.key === 'Backspace') {
+							this.board.clearCell(activeCell.x, activeCell.y);
+						} else if (e.key === 'ArrowDown') {
+							activeCell.y++;
+						} else if (e.key === 'ArrowUp') {
+							activeCell.y--;
+						} else if (e.key === 'ArrowLeft') {
+							activeCell.x--;
+						} else if (e.key === 'ArrowRight') {
+							activeCell.x++;
+						} else {
+							return;
+						}
+
+						activeCell.x = Math.min(8, activeCell.x);
+						activeCell.y = Math.min(8, activeCell.y);
+						activeCell.x = Math.max(0, activeCell.x);
+						activeCell.y = Math.max(0, activeCell.y);
+
+						this.setActiveCell(activeCell);
+					});
+
+					let inputCells = document.getElementsByClassName('input-cell');
+					for (let i = 1; i < 10; i++) {
+						inputCells[i - 1].addEventListener('click', (e) => {
+							this.input(this.cursor.pos, i);
+						});
+					}
+
+					this.cellContainer.addEventListener('dblclick', (e) => {
+						this.input(this.cursor.pos, null);
+						this.setActiveCell(this.cursor.pos);
+					});
+
+					window.addEventListener('resize', this.windowResizeEvent());
+				}
+
+				// Function: getPostion()
+				// Param: mouseX, mouseY
+				// get the position
+				getPosition(mouseX, mouseY) {
+					mouseX -= this.container.offsetLeft - this.container.clientWidth / 2;
+					mouseY -= this.container.offsetTop;
+
+					let x = Math.floor(mouseX / this.cellSize);
+					let y = Math.floor(mouseY / this.cellSize);
+
+					x = Math.min(x, 8);
+					y = Math.min(y, 8);
+
+					return {
+						x: x,
+						y: y,
+					};
+				}
+
+				// Function: setActiveCell()
+				// Param: pos
+				// Activate the cell
+				setActiveCell(pos) {
+					this.cursor.setPosition(pos.x, pos.y);
+					this.board.updateCells(pos);
+				}
+
+				// Function: input
+				// Param: pos, inputValue
+				// set the value to the activated cell
+				input(pos, inputValue) {
+					this.board.inputValue(pos, inputValue);
+					this.cursor.setPosition(pos.x, pos.y);
+					this.board.updateCells(pos);
+				}
+
+				// Function: windowResizeEvent()
+				// change the size when the windows is resize
+				windowResizeEvent() {
+					this.container.style.width = this.board.size * 100 + 'px';
+					this.sudokuInputBoard.style.width = this.board.size * 100 + 'px';
+					this.cellSize = this.container.clientWidth / this.board.size;
+					this.cursor.cellSize = this.cellSize;
+					this.cursor.setPosition(this.cursor.pos);
+				}
+			}
+		</script>
+		<script>
+			// Create object
+			let sudoku = new Sudoku();
+			// init the game
+			sudoku.init();
+
+			// Adding event handlers
+			document
+				.getElementById('newGameButton')
+				.addEventListener('click', function () {
+					document.querySelector(
+						'.sudokuContainer'
+					).innerHTML = `<div class="sudokuCells"></div>`;
+					document.querySelector(
+						'.sudokuInputBoard'
+					).innerHTML = `<div class="inputCells"></div>`;
+
+					sudoku = new Sudoku();
+					clearStorage();
+					sudoku.board.clearbroadStorage();
+					sudoku.init();
+				});
+
+			document
+				.getElementById('showAnswerButton')
+				.addEventListener('click', function () {
+					sudoku.board.showAnswer();
+				});
+
+			document
+				.getElementById('clearButton')
+				.addEventListener('click', function () {
+					sudoku.board.resetBoard();
+				});
+
+			document
+				.getElementById('hintsButton')
+				.addEventListener('click', function () {
+					sudoku.board.hintSwitch();
+					let hintsButton = document.getElementById('hintsButton');
+					if (hintsButton.innerText == 'Turn off Hints') {
+						hintsButton.innerText = 'Turn on Hints';
+						hintsButton.style.backgroundColor = 'Grey';
+					} else {
+						hintsButton.innerText = 'Turn off Hints';
+						hintsButton.style.backgroundColor = 'lightblue';
+					}
+					sudoku.setActiveCell(sudoku.cursor.pos);
+				});
+
+			document
+				.getElementById('closebtn')
+				.addEventListener('click', function () {
+					document.getElementById('mySidenav').style.width = '0';
+				});
+
+			document
+				.getElementById('sideNavOpen')
+				.addEventListener('click', function () {
+					document.getElementById('mySidenav').style.width = '250px';
+				});
+		</script>
+
+		<footer>
+			<span>&copy; <a href="https://bento.me/alan">Alan Ren</a> 2023</span>
+		</footer>
+	</body>
+</html>
