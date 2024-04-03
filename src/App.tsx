@@ -17,16 +17,19 @@ function App() {
 	}, []);
 
 	return (
-		<div className="flex min-h-screen w-full flex-col bg-muted/40">
-			<h1 className="text-2xl font-bold">Archived Websites</h1>
-			<ul>
+		<div className="flex min-h-screen w-full flex-col bg-zinc-900 ">
+			<h1 className="text-center text-white h-full my-4 mx-2  text-2xl font-bold">
+				Archived Projects
+			</h1>
+			<ul className="px-[30vw]">
 				{archives.map((site, index) => (
-					<li key={index} className="my-2">
-						<a
-							href={site.url + '/index.html'}
-							className="text-blue-500 hover:underline"
-						>
-							{site.name}
+					<li
+						key={index}
+						className="mx-2 py-4 text-white bg-gray-500 hover:bg-gray-700 px-10 border-b-2 border-gray-700"
+					>
+						<a href={site.url + '/index.html'} className=" hover:underline">
+							{site.name[0].toUpperCase() +
+								site.name.slice(1).split('-').join(' ')}
 						</a>
 					</li>
 				))}
